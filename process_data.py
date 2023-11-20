@@ -1,13 +1,10 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import pandas.errors
 from IPython.display import display
 from tqdm import tqdm
 
 
-def load_data(
-    filepath, headers=["prev", "curr", "type", "n"], sep="\t", bad_lines="warn"
-):
+def load_data(filepath, headers=None, sep="\t", bad_lines="warn"):
     """
     Loads clickstream data and performs basic cleaning (lowercasing and dropping NaNs).
     :param bad_lines: Defines what to do when encountering a line with too many fields
@@ -21,7 +18,8 @@ def load_data(
     :return: Cleaned data loaded from given file.
     :rtype: pandas dataframe
     """
-    # TODO: Consider handling spaces represented with _
+    if headers is None:
+        headers = ["prev", "curr", "type", "n"]
     clickstream = pd.read_csv(filepath, sep=sep, names=headers, on_bad_lines=bad_lines)
     cols = clickstream.columns
     for col in tqdm(cols, desc="Processing text"):
@@ -47,12 +45,20 @@ def filter_pages(data, page="2022_Russian_invasion_of_Ukraine", column="curr"):
     :rtype: pandas Dataframe
     """
     filtered = data[data[column] == page.lower()]
+
+    if "n" in filtered.columns:
+        filtered = filtered.sort_values(by="n", axis=0, ascending=False)
+    else:
+        print("WARN: Data not sorted by clicks. Column 'n' does not exist.")
+
     return filtered
 
 
-def visualize_n(data, x="prev", y="n"):
+def visualize_n(data, x="prev", y="n", title="Number of Clicks"):
     """
     Creates matplotlib bar plot for clickstreams
+    :param title: Title for plot
+    :type title: str
     :param y: Column name with values for the y-axis.
     :type y: str
     :param x: Column name with values for the x-axis.
@@ -64,7 +70,23 @@ def visualize_n(data, x="prev", y="n"):
     """
     plt.figure(figsize=(12, 12))
     viz = plt.bar(data[x], data[y])
+    plt.title(title)
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+    plt.show()
     return viz
+
+
+def write_csv(dataframe, filepath):
+    """
+    Write pandas Dataframe to csv
+    :param dataframe: Data to be written to disk.
+    :type dataframe: pandas Dataframe
+    :param filepath: Path for output file.
+    :type filepath: str
+    :return: None
+    """
+    dataframe.to_csv(filepath)
 
 
 def main():
@@ -75,10 +97,9 @@ def main():
 
     # Plot top 50 clicks to "2022 Russian Invasion of Ukraine" Wiki Page
     visualize_n(filtered_uaclicks.sort_values(by="n", axis=0, ascending=False)[:50])
-    plt.xticks(rotation=90)
-    plt.tight_layout()
-    plt.show()
-    print("Code execution complete")
+
+    # Write dataframe to disk
+    write_csv(filtered_uaclicks, "./output/2022-03_ua_curr_clickstream.csv")
 
 
 if __name__ == "__main__":
