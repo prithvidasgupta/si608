@@ -90,15 +90,15 @@ def write_csv(dataframe, filepath):
 
 def main():
     ua_clicks202203 = load_data("./data/clickstream-enwiki-2022-03.tsv")
-    filtered_uaclicks = filter_pages(ua_clicks202203)
+    filtered_uaclicks = filter_pages(ua_clicks202203, column="prev")
     display(filtered_uaclicks[:20])
     display(filtered_uaclicks.describe())
 
     # Plot top 50 clicks to "2022 Russian Invasion of Ukraine" Wiki Page
-    visualize_n(filtered_uaclicks[:50])
+    visualize_n(filtered_uaclicks[:50], x="curr")
 
     # Write dataframe to disk
-    write_csv(filtered_uaclicks, "./output/2022-03_ua_curr_clickstream.csv")
+    write_csv(filtered_uaclicks, "./output/2022-03_ua_prev_clickstream.csv")
 
 
 if __name__ == "__main__":
