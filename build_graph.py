@@ -5,14 +5,34 @@ import matplotlib.pyplot as plt
 
 
 def build_df(file1, file2):
+    """
+    Combines dataframes where focus page is source and sink
+    :param file1: Path to file where focus page is sink (curr).
+    :type file1: str
+    :param file2: Path to file where focus page is source (prev).
+    :type file2: str
+    :return: Combined dataframe of clickstream data.
+    :rtype: Dataframe
+    """
     lside = pd.read_csv(file1)
-    print(len(lside))
     rside = pd.read_csv(file2)
-    print(len(rside))
     return pd.concat([lside, rside])
 
 
 def build_graph(df, from_node="prev", to_node="curr", weight="n"):
+    """
+    Creates directed graph from given dataframe, with edge weights equal to clicks.
+    :param df: Pages with clickstream data.
+    :type df: Dataframe
+    :param from_node: Name of column containing click origin pages
+    :type from_node: str
+    :param to_node: Name of column where containing click destination pages
+    :type to_node: str
+    :param weight: Number of clicks
+    :type weight: int
+    :return: Clickstream graph
+    :rtype: NetworkX object
+    """
     g = nx.DiGraph()
     from_nodes = list(df[from_node])
     to_nodes = list(df[to_node])
@@ -26,8 +46,17 @@ def build_graph(df, from_node="prev", to_node="curr", weight="n"):
 
 
 def draw_graph(graph, focus_page):
+    """
+    Creates a visualization of clickstream data.
+    :param graph: Graph to visualize
+    :type graph: NetworkX object
+    :param focus_page: Page title for page users travel to and from.
+    :type focus_page: str
+    :return: None
+    :rtype: None
+    """
     node_colors = ["blue" if node == focus_page else "yellow" for node in graph.nodes()]
-    node_size = [5 if node != focus_page else 800 for node in graph.nodes()]
+    node_size = [5 if node != focus_page else 1000 for node in graph.nodes()]
     plt.figure(figsize=(10, 10))
     nx.draw(
         graph, pos=nx.spring_layout(graph), node_size=node_size, node_color=node_colors
@@ -57,8 +86,11 @@ def main():
     out_degs = dict(ua_2022_03.out_degree)
     in_node, in_degree = max(in_degs.items(), key=lambda x: x[1])
     out_node, out_degree = max(out_degs.items(), key=lambda x: x[1])
+    weights = {(u, v): data["weight"] for u, v, data in ua_2022_03.edges(data=True)}
+    node_pair, max_weight = max(weights.items(), key=lambda x: x[1])
     print(f"max in degree: {(in_node, in_degree)}")
     print(f"max out degree: {out_node, out_degree}")
+    print(f"max edge weight: {node_pair, max_weight}")
 
 
 if __name__ == "__main__":
