@@ -25,6 +25,16 @@ def build_graph(df, from_node="prev", to_node="curr", weight="n"):
     return g
 
 
+def draw_graph(graph, focus_page):
+    node_colors = ["blue" if node == focus_page else "yellow" for node in graph.nodes()]
+    node_size = [5 if node != focus_page else 800 for node in graph.nodes()]
+    plt.figure(figsize=(10, 10))
+    nx.draw(
+        graph, pos=nx.spring_layout(graph), node_size=node_size, node_color=node_colors
+    )
+    plt.show()
+
+
 def main():
     """
     Entry point for program.
@@ -38,11 +48,9 @@ def main():
     display(combined.head())
     display(combined.tail())
 
-    # Build graph
+    # Build and visualize graph
     ua_2022_03 = build_graph(combined)
-    plt.figure(figsize=(10, 10))
-    nx.draw(ua_2022_03, pos=nx.spring_layout(ua_2022_03), node_size=10)
-    plt.show()
+    draw_graph(ua_2022_03, "2022_russian_invasion_of_ukraine")
 
     # Check graph
     in_degs = dict(ua_2022_03.in_degree)
