@@ -50,7 +50,6 @@ def filter_pages(data, page="2022_Russian_invasion_of_Ukraine", column="curr"):
         filtered = filtered.sort_values(by="n", axis=0, ascending=False)
     else:
         print("WARN: Data not sorted by clicks. Column 'n' does not exist.")
-
     return filtered
 
 
@@ -92,11 +91,11 @@ def write_csv(dataframe, filepath):
 def main():
     ua_clicks202203 = load_data("./data/clickstream-enwiki-2022-03.tsv")
     filtered_uaclicks = filter_pages(ua_clicks202203)
-    display(filtered_uaclicks.sort_values(by="n", axis=0, ascending=False)[:20])
+    display(filtered_uaclicks[:20])
     display(filtered_uaclicks.describe())
 
     # Plot top 50 clicks to "2022 Russian Invasion of Ukraine" Wiki Page
-    visualize_n(filtered_uaclicks.sort_values(by="n", axis=0, ascending=False)[:50])
+    visualize_n(filtered_uaclicks[:50])
 
     # Write dataframe to disk
     write_csv(filtered_uaclicks, "./output/2022-03_ua_curr_clickstream.csv")
