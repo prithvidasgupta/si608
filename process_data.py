@@ -89,8 +89,8 @@ def write_csv(dataframe, filepath):
 
 
 def main():
-    ua_clicks202203 = load_data("./data/clickstream-enwiki-2022-03.tsv")
-    filtered_uaclicks = filter_pages(ua_clicks202203, column="prev")
+    ua_clicks202303 = load_data("./data/clickstream-enwiki-2023-03.tsv")
+    filtered_uaclicks = filter_pages(ua_clicks202303, column="prev")
     display(filtered_uaclicks[:20])
     display(filtered_uaclicks.describe())
 
@@ -98,7 +98,7 @@ def main():
     visualize_n(filtered_uaclicks[:50], x="curr")
 
     # Write dataframe to disk
-    write_csv(filtered_uaclicks, "./output/2022-03_ua_prev_clickstream.csv")
+    write_csv(filtered_uaclicks, "./output/2023-03_ua_prev_clickstream.csv")
 
 
 if __name__ == "__main__":
