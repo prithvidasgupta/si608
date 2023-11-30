@@ -6,6 +6,7 @@ from tqdm import tqdm
 import glob
 import re
 from pathlib import Path
+import gzip
 
 
 # %%
@@ -25,7 +26,16 @@ def load_data(filepath, headers=None, sep="\t", bad_lines="warn"):
     """
     if headers is None:
         headers = ["prev", "curr", "type", "n"]
-    clickstream = pd.read_csv(filepath, sep=sep, names=headers, on_bad_lines=bad_lines)
+    filepath = str(filepath)
+    if filepath.endswith(".gz"):
+        with gzip.open(filepath, "rt", encoding="utf-8") as file_obj:
+            clickstream = pd.read_csv(
+                file_obj, sep=sep, names=headers, on_bad_lines=bad_lines
+            )
+    else:
+        clickstream = pd.read_csv(
+            filepath, sep=sep, names=headers, on_bad_lines=bad_lines
+        )
     cols = clickstream.columns
     for col in tqdm(cols, desc="Processing text"):
         try:
@@ -94,19 +104,46 @@ def write_csv(dataframe, filepath):
 
 
 # %%
-def calc_top_n(directory, page, status="curr"):
+def calc_top_n(directory, page, status="curr", limit=200, topn=20):
+    """
+    Finds top trafficked pages (either destination or source) if there are at least 200 linked pages.
+    :param topn: Number of "top" pages to consider.
+    :type topn: int
+    :param limit: Minimum number of pages that must be present before calculating top pages.
+    :type limit: int
+    :param directory: Location of data.
+    :type directory: str
+    :param page: Page title used in filenames.
+    :type page: str
+    :param status: Determines whether to calculated for prev or curr pages. Use curr if page of interest is prev.
+    :type status: str
+    :return: Page titles consistently appearing in top 20 most trafficked pages
+    :rtype: set
+    """
     dir_ = Path(directory)
-    pattern = dir_ / f"????-??_{page}_clickstream.csv"
+    pattern = dir_ / f"????-??_{page}_clickstream.*"
     clickstream_files = glob.glob(str(pattern))
     top_ns = list()
     for file in clickstream_files:
-        clicks_data = pd.read_csv(file)
+        if file.endswith(".gz"):
+            with gzip.open(file, "rt") as file_obj:
+                clicks_data = pd.read_csv(file_obj)
+        else:
+            clicks_data = pd.read_csv(file)
         date_pattern = r"(\d{4}-\d{2})"
         match = re.search(date_pattern, str(file))
-        file_date = match.group(1)
-        clicks_data["month"] = file_date
-        top_n = clicks_data.sort_values(by="n", axis=0, ascending=False).head(20)
-        top_ns.append(set(top_n[status]))
+        if match:
+            file_date = match.group(1)
+            clicks_data["month"] = file_date
+            if len(clicks_data) >= limit:
+                top_n = clicks_data.sort_values(by="n", axis=0, ascending=False).head(
+                    topn
+                )
+                top_ns.append(set(top_n[status]))
+            else:
+                continue
+        else:
+            continue
     return set.intersection(*top_ns)
 
 
@@ -125,11 +162,11 @@ def main():
     # write_csv(filtered_uaclicks, "./output/2023-03_ua_prev_clickstream.csv")
 
     # %%
-    ua_top_prev = calc_top_n(
-        "./output/",
-        "ua_prev",
+    rusuawar_top_prev = calc_top_n(
+        "./data/2017-2023/",
+        "rusuawar_prev",
     )
-    print(ua_top_prev)
+    pd.DataFrame(list(rusuawar_top_prev)).to_csv("./output/rusuawar_topn.csv")
 
 
 if __name__ == "__main__":
