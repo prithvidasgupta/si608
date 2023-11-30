@@ -3,11 +3,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from IPython.display import display
 from tqdm import tqdm
-from pathlib import Path
-import re
 import glob
+import re
+from pathlib import Path
 
 
+# %%
 def load_data(filepath, headers=None, sep="\t", bad_lines="warn"):
     """
     Loads clickstream data and performs basic cleaning (lowercasing and dropping NaNs).
@@ -92,6 +93,7 @@ def write_csv(dataframe, filepath):
     dataframe.to_csv(filepath)
 
 
+# %%
 def calc_top_n(directory, page, status="curr"):
     dir_ = Path(directory)
     pattern = dir_ / f"????-??_{page}_clickstream.csv"
@@ -108,24 +110,26 @@ def calc_top_n(directory, page, status="curr"):
     return set.intersection(*top_ns)
 
 
+# %%
 def main():
-    """
-    Entry point for program.
-    :return: None
-    """
-    # %%
-    ua_clicks202303 = load_data("./data/clickstream-enwiki-2023-03.tsv")
-    filtered_uaclicks = filter_pages(ua_clicks202303, column="prev")
+    ua_clicks202207 = load_data("./data/clickstream-enwiki-2022-07.tsv")
+    display(ua_clicks202207)
+    filtered_uaclicks = filter_pages(ua_clicks202207, column="prev")
     display(filtered_uaclicks[:20])
     display(filtered_uaclicks.describe())
 
     # Plot top 50 clicks to "2022 Russian Invasion of Ukraine" Wiki Page
-    visualize_n(filtered_uaclicks[:50], x="curr")
+    # visualize_n(filtered_uaclicks[:50], x="curr")
 
     # Write dataframe to disk
-    write_csv(filtered_uaclicks, "./output/2023-03_ua_prev_clickstream.csv")
+    # write_csv(filtered_uaclicks, "./output/2023-03_ua_prev_clickstream.csv")
 
     # %%
+    ua_top_prev = calc_top_n(
+        "./output/",
+        "ua_prev",
+    )
+    print(ua_top_prev)
 
 
 if __name__ == "__main__":

@@ -1,9 +1,11 @@
+# %%
 import networkx as nx
 import pandas as pd
 from IPython.display import display
 import matplotlib.pyplot as plt
 
 
+# %%
 def build_df(file1, file2):
     """
     Combines dataframes where focus page is source and sink
@@ -64,6 +66,7 @@ def draw_graph(graph, focus_page):
     plt.show()
 
 
+# %%
 def main():
     """
     Entry point for program.
@@ -86,6 +89,18 @@ def main():
     out_degs = dict(ua_2022_03.out_degree)
     in_node, in_degree = max(in_degs.items(), key=lambda x: x[1])
     out_node, out_degree = max(out_degs.items(), key=lambda x: x[1])
+    weights = {(u, v): data["weight"] for u, v, data in ua_2022_03.edges(data=True)}
+    node_pair, max_weight = max(weights.items(), key=lambda x: x[1])
+    print(f"max in degree: {(in_node, in_degree)}")
+    print(f"max out degree: {out_node, out_degree}")
+    print(f"max edge weight: {node_pair, max_weight}")
+
+    # %% Test output from main
+    main_ua_202203 = nx.read_gml("./output/202203_graph.gml")
+    main_in_degs = dict(main_ua_202203.in_degree)
+    main_out_degs = dict(main_ua_202203.out_degree)
+    in_node, in_degree = max(main_in_degs.items(), key=lambda x: x[1])
+    out_node, out_degree = max(main_out_degs.items(), key=lambda x: x[1])
     weights = {(u, v): data["weight"] for u, v, data in ua_2022_03.edges(data=True)}
     node_pair, max_weight = max(weights.items(), key=lambda x: x[1])
     print(f"max in degree: {(in_node, in_degree)}")
