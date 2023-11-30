@@ -160,7 +160,7 @@ cython_debug/
 .idea/
 
 # Large data files
-/data/*.tsv*
+/data/**
 /# si608_project_pm_notes.md
 
 # Local stuff

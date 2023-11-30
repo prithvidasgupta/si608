@@ -25,8 +25,9 @@ def get_paths(directory, pattern):
 
 # %% Load and process data
 # NOTE: In March 2023, page title changed to "Russian_invasion_of_Ukraine"
-clickstream_files = get_paths("./data/", "clickstream-enwiki-*.tsv")
+clickstream_files = get_paths("./data/2017-2023", "clickstream-enwiki-*.tsv.gz")
 for file in clickstream_files:
+    file = str(file)
     if file != "./data/clickstream-enwiki-2023-03.tsv":
         # Create patterns for naming file
         filename_pattern = "clickstream-enwiki-"
@@ -36,10 +37,16 @@ for file in clickstream_files:
 
         # Load and filter data for 2022_Russian_invasion_of_Ukraine
         loaded = load_data(file)
-        filtered_curr = filter_pages(loaded, column="curr")
-        filtered_prev = filter_pages(loaded, column="prev")
-        write_csv(filtered_prev, f"./output/{file_date}_ua_prev_clickstream.csv")
-        write_csv(filtered_curr, f"./output/{file_date}_ua_curr_clickstream.csv")
+        filtered_curr = filter_pages(loaded, column="curr", page="Russo-Ukrainian_War")
+        filtered_prev = filter_pages(loaded, column="prev", page="Russo-Ukrainian_War")
+        write_csv(
+            filtered_prev,
+            f"./data/2017-2023/{file_date}_rusuawar_prev_clickstream.csv",
+        )
+        write_csv(
+            filtered_curr,
+            f"./data/2017-2023/{file_date}_rusuawar_curr_clickstream.csv",
+        )
 
 # %% Load and write 2023-03 RUS-UA data
 ua_202303 = load_data("./data/clickstream-enwiki-2023-03.tsv")
@@ -49,8 +56,8 @@ filtered_ua202303_curr = filter_pages(
 filtered_ua202303_prev = filter_pages(
     ua_202303, column="prev", page="Russian_invasion_of_Ukraine"
 )
-filtered_ua202303_curr["curr"] = "2022_russian_invasion_of_ukraine"
-filtered_ua202303_prev["prev"] = "2022_russian_invasion_of_ukraine"
+filtered_ua202303_curr["curr"] = "russo-ukrainian_war"
+filtered_ua202303_prev["prev"] = "russo-ukrainian_war"
 write_csv(filtered_ua202303_prev, "./output/2023-03_ua_prev_clickstream.csv")
 write_csv(filtered_ua202303_curr, "./output/2023-03_ua_curr_clickstream.csv")
 
