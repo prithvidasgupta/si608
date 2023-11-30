@@ -1,7 +1,11 @@
+# %%
 import pandas as pd
 import matplotlib.pyplot as plt
 from IPython.display import display
 from tqdm import tqdm
+from pathlib import Path
+import re
+import glob
 
 
 def load_data(filepath, headers=None, sep="\t", bad_lines="warn"):
@@ -88,7 +92,28 @@ def write_csv(dataframe, filepath):
     dataframe.to_csv(filepath)
 
 
+def calc_top_n(directory, page, status="curr"):
+    dir_ = Path(directory)
+    pattern = dir_ / f"????-??_{page}_clickstream.csv"
+    clickstream_files = glob.glob(str(pattern))
+    top_ns = list()
+    for file in clickstream_files:
+        clicks_data = pd.read_csv(file)
+        date_pattern = r"(\d{4}-\d{2})"
+        match = re.search(date_pattern, str(file))
+        file_date = match.group(1)
+        clicks_data["month"] = file_date
+        top_n = clicks_data.sort_values(by="n", axis=0, ascending=False).head(20)
+        top_ns.append(set(top_n[status]))
+    return set.intersection(*top_ns)
+
+
 def main():
+    """
+    Entry point for program.
+    :return: None
+    """
+    # %%
     ua_clicks202303 = load_data("./data/clickstream-enwiki-2023-03.tsv")
     filtered_uaclicks = filter_pages(ua_clicks202303, column="prev")
     display(filtered_uaclicks[:20])
@@ -99,6 +124,8 @@ def main():
 
     # Write dataframe to disk
     write_csv(filtered_uaclicks, "./output/2023-03_ua_prev_clickstream.csv")
+
+    # %%
 
 
 if __name__ == "__main__":
