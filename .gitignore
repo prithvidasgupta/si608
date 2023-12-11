@@ -160,10 +160,9 @@ cython_debug/
 .idea/
 
 # Large data files
-/data/*
+/data/**
 /# si608_project_pm_notes.md
 
 # Local stuff
 .DS_Store
 /admin/**
-
