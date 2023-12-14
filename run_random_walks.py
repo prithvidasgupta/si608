@@ -103,6 +103,11 @@ for date in date_list:
     s = set(pad_df["i"].unique())
     extra = [i for i in range(len(page_idx)) if i not in s]
 
+    # Write to disk
+    probability_df.to_csv(
+        f"./output/random_walks/probability_dfs/{date}_sept11_probability.csv"
+    )
+
     weight = []
     adj = []
     row = []
