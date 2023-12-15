@@ -168,3 +168,4 @@ cython_debug/
 /admin/**
 /output/random_walks/
 /output/topology/
+/output/spikes/
